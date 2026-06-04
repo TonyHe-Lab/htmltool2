@@ -343,6 +343,7 @@
       hoveredElement: null,
       iframeReady: false,
       isDirty: false,
+      isSaving: false,
     };
 
     const $ = id => document.getElementById(id);
@@ -453,33 +454,95 @@
 
     btnSave.addEventListener('click', saveFile);
 
-    function saveFile() {
-      if (!state.iframeReady) return;
+    async function saveFile() {
+      if (!state.iframeReady || state.isSaving) return;
       const doc = viewer.contentDocument;
       if (!doc) return;
-      // 克隆一份再清理,避免影响活的 DOM(保留用户的光标位置)
-      const clone = doc.documentElement.cloneNode(true);
-      const clonedBody = clone.querySelector('body');
-      if (clonedBody) {
-        clonedBody.removeAttribute('contenteditable');
-        // 移除编辑器可能加在 body 上的 inline 样式
-        clonedBody.style.cursor = '';
+      const previousSaveText = btnSave.textContent;
+      state.isSaving = true;
+      btnSave.disabled = true;
+      btnSave.textContent = '保存中...';
+      try {
+        // 克隆一份再清理,避免影响活的 DOM(保留用户的光标位置)
+        const clone = doc.documentElement.cloneNode(true);
+        await inlineLoadedImages(doc, clone);
+        const clonedBody = clone.querySelector('body');
+        if (clonedBody) {
+          clonedBody.removeAttribute('contenteditable');
+          // 移除编辑器可能加在 body 上的 inline 样式
+          clonedBody.style.cursor = '';
+        }
+        let html = clone.outerHTML;
+        if (!/^<!DOCTYPE/i.test(html)) {
+          html = '<!DOCTYPE html>\n' + html;
+        }
+        const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const baseName = state.currentFileName.replace(/\.html?$/i, '') || 'untitled';
+        a.download = baseName + '-edited.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setDirty(false);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      } finally {
+        state.isSaving = false;
+        btnSave.disabled = false;
+        btnSave.textContent = previousSaveText;
       }
-      let html = clone.outerHTML;
-      if (!/^<!DOCTYPE/i.test(html)) {
-        html = '<!DOCTYPE html>\n' + html;
+    }
+
+    async function inlineLoadedImages(sourceDoc, clonedRoot) {
+      const sourceImages = Array.from(sourceDoc.querySelectorAll('img'));
+      const clonedImages = Array.from(clonedRoot.querySelectorAll('img'));
+      await Promise.all(sourceImages.map(async (img, index) => {
+        const clonedImg = clonedImages[index];
+        if (!clonedImg) return;
+        const src = img.currentSrc || img.src || img.getAttribute('src');
+        if (!src || src.startsWith('data:')) return;
+        const dataUrl = await imageToDataUrl(img, src);
+        if (!dataUrl) return;
+        clonedImg.setAttribute('src', dataUrl);
+        clonedImg.removeAttribute('srcset');
+      }));
+    }
+
+    async function imageToDataUrl(img, src) {
+      const fetched = await fetchImageAsDataUrl(src);
+      if (fetched) return fetched;
+      if (!img.complete || !img.naturalWidth || !img.naturalHeight) return null;
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        return canvas.toDataURL('image/png');
+      } catch (err) {
+        return null;
       }
-      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      const baseName = state.currentFileName.replace(/\.html?$/i, '') || 'untitled';
-      a.download = baseName + '-edited.html';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setDirty(false);
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    async function fetchImageAsDataUrl(src) {
+      try {
+        const res = await fetch(src);
+        if (!res.ok) return null;
+        const blob = await res.blob();
+        return await blobToDataUrl(blob);
+      } catch (err) {
+        return null;
+      }
+    }
+
+    function blobToDataUrl(blob) {
+      return new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(blob);
+      });
     }
 
     btnReset.addEventListener('click', () => {

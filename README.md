@@ -23,6 +23,7 @@ Everything else, including structure, layout, CSS, images, and animations, is pr
 - Color panel: edit background color, text color, HEX values, and preset swatches
 - Change status: see whether the current file has unsaved edits
 - Drag and drop: drop `.html` / `.htm` files into the window
+- Image preservation: loaded `<img>` assets are inlined when saving whenever the browser allows it
 
 ## Quick Start
 
@@ -78,6 +79,7 @@ Please still keep these points in mind:
 - Structural editing is intentionally unsupported
 - Color edits are written as inline styles
 - Relative assets may not resolve from the original HTML file location when using `srcdoc`
+- Images that cannot be fetched by the browser are kept as their original paths
 - Firefox support for `contenteditable="plaintext-only"` differs from Chromium browsers
 
 ## Browser Compatibility
