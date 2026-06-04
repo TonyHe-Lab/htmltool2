@@ -284,6 +284,10 @@
         <input type="checkbox" id="toggle-edit" disabled>
         <span>编辑模式</span>
       </label>
+      <label class="switch" title="用于需要 JavaScript 的 PPT、翻页、动画页面。仅打开可信 HTML。">
+        <input type="checkbox" id="toggle-scripts" disabled>
+        <span>交互预览</span>
+      </label>
       <button id="btn-reset" disabled>↺ 重置</button>
       <button id="btn-save" disabled>💾 保存</button>
     </header>
@@ -339,6 +343,7 @@
       originalHTML: '',
       currentFileName: '',
       isEditMode: false,
+      allowScripts: false,
       selectedElement: null,
       hoveredElement: null,
       iframeReady: false,
@@ -352,6 +357,7 @@
     const btnSave = $('btn-save');
     const btnReset = $('btn-reset');
     const toggleEdit = $('toggle-edit');
+    const toggleScripts = $('toggle-scripts');
     const fileName = $('file-name');
     const statusBadge = $('status-badge');
     const placeholder = $('placeholder');
@@ -424,6 +430,7 @@
         btnSave.disabled = false;
         btnReset.disabled = false;
         toggleEdit.disabled = false;
+        toggleScripts.disabled = false;
         setDirty(false);
         loadIntoIframe(state.originalHTML);
       };
@@ -440,9 +447,30 @@
       }
       hideColorPanel();
       state.iframeReady = false;
+      updateViewerSandbox();
       viewer.srcdoc = html;
       viewer.classList.add('loaded');
       placeholder.style.display = 'none';
+    }
+
+    function updateViewerSandbox() {
+      viewer.setAttribute('sandbox', state.allowScripts ? 'allow-same-origin allow-scripts' : 'allow-same-origin');
+    }
+
+    function getCurrentPreviewHTML() {
+      const doc = viewer.contentDocument;
+      if (!doc) return state.originalHTML;
+      const clone = doc.documentElement.cloneNode(true);
+      const clonedBody = clone.querySelector('body');
+      if (clonedBody) {
+        clonedBody.removeAttribute('contenteditable');
+        clonedBody.style.cursor = '';
+      }
+      let html = clone.outerHTML;
+      if (!/^<!DOCTYPE/i.test(html)) {
+        html = '<!DOCTYPE html>\n' + html;
+      }
+      return html;
     }
 
     viewer.addEventListener('load', () => {
@@ -582,6 +610,23 @@
       else disableEditMode();
     });
 
+    toggleScripts.addEventListener('change', () => {
+      if (!state.iframeReady) {
+        toggleScripts.checked = false;
+        return;
+      }
+      if (toggleScripts.checked) {
+        const ok = confirm('交互预览会执行当前 HTML 中的 JavaScript。只建议对可信的本地/AI 生成文件开启。继续吗?');
+        if (!ok) {
+          toggleScripts.checked = false;
+          return;
+        }
+      }
+      const html = getCurrentPreviewHTML();
+      state.allowScripts = toggleScripts.checked;
+      loadIntoIframe(html);
+    });
+
     function enableEditMode() {
       const doc = viewer.contentDocument;
       if (!doc) return;
@@ -638,9 +683,13 @@
       const handleMouseDown = (e) => {
         if (!state.isEditMode) return;
         // 点击位置是否落在文字上(用 caretPosition 精确判断)
-        if (isPointInText(e.clientX, e.clientY)) return;
+        if (isPointInText(e.clientX, e.clientY)) {
+          e.stopPropagation();
+          return;
+        }
         if (!isValidElement(e.target)) return;
         e.preventDefault();
+        e.stopPropagation();
       };
 
       const handleClick = (e) => {
@@ -651,7 +700,10 @@
           return;
         }
         // 点击位置是否落在文字上 → 交给浏览器原生处理(进入文字编辑)
-        if (isPointInText(e.clientX, e.clientY)) return;
+        if (isPointInText(e.clientX, e.clientY)) {
+          e.stopPropagation();
+          return;
+        }
         if (!isValidElement(el)) {
           hideColorPanel();
           return;
@@ -662,6 +714,7 @@
       };
 
       const handleKeyDown = (e) => {
+        if (state.isEditMode) e.stopPropagation();
         if (e.key !== 'Backspace' && e.key !== 'Delete') return;
         const sel = doc.getSelection();
         if (!sel || !sel.isCollapsed) return;
@@ -691,6 +744,7 @@
 
       const handleBeforeInput = (e) => {
         if (!state.isEditMode) return;
+        e.stopPropagation();
         const inputType = e.inputType || '';
         const blockedTypes = [
           'insertParagraph',
@@ -726,6 +780,7 @@
 
       const handlePaste = (e) => {
         e.preventDefault();
+        e.stopPropagation();
         const text = (e.clipboardData || window.clipboardData).getData('text/plain');
         if (text && isSafeTextSelection(doc, 'insertText')) {
           doc.execCommand('insertText', false, text);

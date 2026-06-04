@@ -19,6 +19,7 @@ Everything else, including structure, layout, CSS, images, and animations, is pr
 - Fully local: file loading, editing, and saving happen in your browser
 - No build step: no Node.js, bundler, or backend required
 - Safer preview: scripts inside the edited HTML are disabled by default
+- Interactive preview: optionally enable scripts for animated decks, page flipping, and JavaScript-driven pages
 - Plain-text editing: pasted content is inserted without rich formatting
 - Color panel: edit background color, text color, HEX values, and preset swatches
 - Change status: see whether the current file has unsaved edits
@@ -56,6 +57,8 @@ http://127.0.0.1:8765/index.html
 5. Click empty space inside an element, or use the floating color button, to open the color panel
 6. Click "Save" to download `original-name-edited.html`
 
+For animated HTML presentations or page-flipping files, turn on "Interactive preview" before editing. This lets the page's own JavaScript initialize slides, animations, and navigation.
+
 Shortcuts:
 
 | Shortcut | Action |
@@ -65,11 +68,12 @@ Shortcuts:
 
 ## Security Notes
 
-The editor previews user HTML in an iframe and does not grant `allow-scripts`, so scripts inside the edited page do not run by default. This reduces the chance that an untrusted HTML file can affect the editor itself.
+The editor previews user HTML in an iframe and does not grant `allow-scripts` by default, so scripts inside the edited page do not run unless you enable "Interactive preview". This reduces the chance that an untrusted HTML file can affect the editor itself.
 
 Please still keep these points in mind:
 
 - Do not edit untrusted HTML that contains sensitive information
+- Only enable "Interactive preview" for trusted local or AI-generated files
 - Saved output comes from browser DOM serialization and may not match the exact original formatting
 - Pages that rely on runtime JavaScript rendering may not display generated content in the default preview
 
@@ -80,6 +84,7 @@ Please still keep these points in mind:
 - Color edits are written as inline styles
 - Relative assets may not resolve from the original HTML file location when using `srcdoc`
 - Images that cannot be fetched by the browser are kept as their original paths
+- JavaScript-driven pages need "Interactive preview" enabled before editing
 - Firefox support for `contenteditable="plaintext-only"` differs from Chromium browsers
 
 ## Browser Compatibility
