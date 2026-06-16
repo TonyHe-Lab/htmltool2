@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HTML 编辑器</title>
+  <title>HTML 编辑器 Pro</title>
   <style>
     * { box-sizing: border-box; }
     html, body {
@@ -250,6 +250,108 @@
       transform: scale(1.12);
     }
     #color-button[hidden] { display: none; }
+    /* ============== 媒体面板 ============== */
+    #media-panel {
+      position: fixed; background: white; border: 1px solid #e5e7eb;
+      border-radius: 12px; box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+      padding: 14px; width: 320px; z-index: 10000; font-size: 13px;
+    }
+    #media-panel[hidden] { display: none; }
+    #media-panel .panel-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #f3f4f6;
+    }
+    #media-panel .panel-header .element-info { font-size: 12px; color: #6b7280; }
+    #media-panel .panel-header .element-info code {
+      color: #1f2937; background: #f3f4f6; padding: 2px 8px; border-radius: 4px;
+      font-size: 11px; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      max-width: 200px; display: inline-block; overflow: hidden;
+      text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom;
+    }
+    .media-section { margin-bottom: 12px; }
+    .media-section:last-child { margin-bottom: 0; }
+    .media-section > label {
+      display: block; font-size: 12px; color: #6b7280; margin-bottom: 6px; font-weight: 500;
+    }
+    .size-row, .margin-row { display: flex; align-items: center; gap: 6px; }
+    .size-row input, .margin-row input {
+      width: 70px; padding: 7px 9px; border: 1px solid #d1d5db; border-radius: 6px;
+      font-size: 12px; font-family: ui-monospace, "SF Mono", Menlo, monospace; text-align: center;
+    }
+    .size-row input:focus, .margin-row input:focus { outline: none; border-color: #3b82f6; }
+    .size-row .sep { color: #9ca3af; font-size: 12px; }
+    .margin-row .m-label { width: 16px; text-align: center; color: #6b7280; font-size: 11px; }
+    .btn-sm {
+      padding: 5px 10px; font-size: 11px; background: #f9fafb;
+      border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; color: #6b7280; white-space: nowrap;
+    }
+    .btn-sm:hover { background: #f3f4f6; color: #1f2937; }
+    .btn-row { display: flex; gap: 6px; flex-wrap: wrap; }
+    .lock-toggle {
+      display: flex; align-items: center; gap: 4px; font-size: 11px; color: #6b7280; cursor: pointer;
+      user-select: none; padding: 4px 8px; border: 1px solid #e5e7eb; border-radius: 999px;
+    }
+    .lock-toggle:has(input:checked) { color: #1d4ed8; border-color: #bfdbfe; background: #eff6ff; }
+    .lock-toggle input { width: 14px; height: 14px; accent-color: #2563eb; cursor: pointer; }
+    .margin-grid { display: grid; grid-template-columns: auto 1fr auto 1fr auto; gap: 4px; align-items: center; }
+    .margin-grid .m-label { font-size: 11px; color: #6b7280; text-align: center; }
+
+    /* ============== 主题面板 ============== */
+    #theme-backdrop {
+      position: fixed; inset: 0; background: rgba(15,23,42,0.3);
+      z-index: 10000; display: none; backdrop-filter: blur(2px);
+    }
+    #theme-backdrop.visible { display: block; }
+    #theme-panel {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: white; border: 1px solid #e5e7eb; border-radius: 16px;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.25); padding: 20px;
+      width: 480px; max-width: 92vw; max-height: 80vh; overflow-y: auto;
+      z-index: 10001; font-size: 13px; display: none;
+    }
+    #theme-panel.visible { display: block; }
+    .theme-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #f3f4f6;
+    }
+    .theme-header h3 { margin: 0; font-size: 15px; font-weight: 600; }
+    .theme-presets { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+    .theme-presets button {
+      padding: 6px 14px; font-size: 12px; border: 1px solid #d1d5db; border-radius: 8px;
+      background: white; cursor: pointer; color: #374151; transition: all 0.15s;
+    }
+    .theme-presets button:hover { background: #f3f4f6; border-color: #9ca3af; }
+    .theme-presets button.active { background: #2563eb; color: white; border-color: #2563eb; }
+    .theme-palette { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; }
+    .theme-swatch {
+      aspect-ratio: 1; border: 2px solid #e5e7eb; border-radius: 8px; cursor: pointer;
+      position: relative; transition: all 0.15s;
+    }
+    .theme-swatch:hover { transform: scale(1.1); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    .theme-swatch.selected { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.3); }
+    .theme-swatch .count {
+      position: absolute; top: -4px; right: -4px; background: #ef4444; color: white;
+      font-size: 9px; min-width: 14px; height: 14px; border-radius: 7px;
+      display: flex; align-items: center; justify-content: center; padding: 0 3px;
+    }
+    .theme-swatch .hex {
+      display: none; position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%);
+      font-size: 10px; color: #6b7280; white-space: nowrap; font-family: monospace;
+    }
+    .theme-swatch:hover .hex { display: block; }
+    .theme-replace-bar {
+      display: none; align-items: center; gap: 8px; margin-top: 16px;
+      padding: 12px; background: #f8fafc; border-radius: 10px; border: 1px solid #e5e7eb;
+    }
+    .theme-replace-bar.visible { display: flex; }
+    .theme-replace-bar .label { font-size: 12px; color: #6b7280; white-space: nowrap; }
+    .theme-replace-bar input[type="color"] { width: 36px; height: 30px; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; padding: 2px; }
+    .theme-replace-bar input[type="text"] {
+      width: 80px; padding: 6px 8px; border: 1px solid #d1d5db; border-radius: 6px;
+      font-size: 12px; font-family: monospace;
+    }
+    .theme-replace-bar .btn-sm.primary { background: #2563eb; color: white; border-color: #2563eb; }
+
     @media (max-width: 720px) {
       .toolbar {
         flex-wrap: wrap;
@@ -280,6 +382,7 @@
       <span class="file-name" id="file-name"></span>
       <span class="status-badge" id="status-badge">未修改</span>
       <span class="spacer"></span>
+      <button id="btn-theme" disabled>🎨 主题</button>
       <label class="switch">
         <input type="checkbox" id="toggle-edit" disabled>
         <span>编辑模式</span>
@@ -308,6 +411,53 @@
   <div id="selected-overlay" class="overlay"></div>
   <button id="color-button" hidden title="修改此元素颜色">🎨</button>
 
+  <!-- 媒体面板 -->
+  <div id="media-panel" hidden>
+    <div class="panel-header">
+      <span class="element-info">媒体: <code id="media-el-tag"></code></span>
+      <button class="panel-close" id="media-panel-close" title="关闭 (Esc)">×</button>
+    </div>
+    <div class="media-section">
+      <label>替换文件</label>
+      <div class="btn-row">
+        <button class="btn-sm" id="media-replace-btn">📷 选择新文件</button>
+        <input type="file" id="media-file-input" accept="image/*,video/*" hidden>
+        <button class="btn-sm" id="media-url-btn">🔗 URL 替换</button>
+      </div>
+    </div>
+    <div class="media-section">
+      <label>尺寸 (px)</label>
+      <div class="size-row">
+        <input type="number" id="media-width" min="0" step="1" placeholder="宽">
+        <span class="sep">×</span>
+        <input type="number" id="media-height" min="0" step="1" placeholder="高">
+        <label class="lock-toggle"><input type="checkbox" id="media-lock" checked> 锁比</label>
+      </div>
+      <div class="btn-row" style="margin-top:6px;">
+        <button class="btn-sm" id="media-size-reset">重置尺寸</button>
+        <button class="btn-sm" id="media-size-apply">应用尺寸</button>
+      </div>
+    </div>
+    <div class="media-section">
+      <label>间距微调 (margin px)</label>
+      <div class="margin-grid">
+        <span class="m-label">上</span>
+        <input type="number" id="margin-top" value="0" min="-999" max="999" step="1">
+        <span class="m-label">右</span>
+        <input type="number" id="margin-right" value="0" min="-999" max="999" step="1">
+        <button class="btn-sm" id="margin-reset" title="重置间距">↺</button>
+      </div>
+      <div class="margin-grid" style="margin-top:4px;">
+        <span class="m-label">下</span>
+        <input type="number" id="margin-bottom" value="0" min="-999" max="999" step="1">
+        <span class="m-label">左</span>
+        <input type="number" id="margin-left" value="0" min="-999" max="999" step="1">
+        <button class="btn-sm" id="margin-apply" title="应用间距">✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 颜色面板 (原有) -->
   <div id="color-panel" hidden>
     <div class="panel-header">
       <span class="element-info">元素: <code id="el-tag"></code></span>
@@ -335,10 +485,39 @@
     </div>
   </div>
 
+  <!-- 主题面板 -->
+  <div id="theme-backdrop"></div>
+  <div id="theme-panel">
+    <div class="theme-header">
+      <h3>🎨 颜色主题</h3>
+      <button class="panel-close" id="theme-panel-close" title="关闭 (Esc)">×</button>
+    </div>
+    <div class="theme-presets">
+      <button data-preset="warm">🔥 暖色</button>
+      <button data-preset="cool">❄️ 冷色</button>
+      <button data-preset="dark">🌙 暗色</button>
+      <button data-preset="restore" style="border-color:#f59e0b;color:#92400e;">↺ 还原</button>
+    </div>
+    <label style="font-size:12px;color:#6b7280;font-weight:500;display:block;margin-bottom:8px;">
+      页面色板（点击色块替换）
+    </label>
+    <div class="theme-palette" id="theme-palette"></div>
+    <div class="theme-replace-bar" id="theme-replace-bar">
+      <span class="label">替换:</span>
+      <span id="theme-original-swatch" style="width:28px;height:28px;border:1px solid #d1d5db;border-radius:6px;display:inline-block;flex-shrink:0;"></span>
+      <span class="label">→</span>
+      <input type="color" id="theme-replace-color" value="#000000">
+      <input type="text" id="theme-replace-text" value="#000000" maxlength="7" spellcheck="false" style="width:80px;">
+      <span style="flex:1;"></span>
+      <button class="btn-sm primary" id="theme-do-replace">替换全部</button>
+    </div>
+  </div>
+
   <script>
   (function() {
     'use strict';
 
+    /* ============== State ============== */
     const state = {
       originalHTML: '',
       currentFileName: '',
@@ -349,6 +528,13 @@
       iframeReady: false,
       isDirty: false,
       isSaving: false,
+      // media panel state
+      mediaEl: null,
+      mediaAspectRatio: 1,
+      // theme panel state
+      themeColorMap: {},    // hex -> [{el, prop}]
+      themeOriginalStyles: new Map(),  // el -> {prop: originalValue} for undo
+      themeSelectedColor: null,
     };
 
     const $ = id => document.getElementById(id);
@@ -374,6 +560,29 @@
     const swatches = $('swatches');
     const panelClose = $('panel-close');
     const colorButton = $('color-button');
+    // new elements
+    const btnTheme = $('btn-theme');
+    const mediaPanel = $('media-panel');
+    const mediaElTag = $('media-el-tag');
+    const mediaPanelClose = $('media-panel-close');
+    const mediaReplaceBtn = $('media-replace-btn');
+    const mediaFileInput = $('media-file-input');
+    const mediaUrlBtn = $('media-url-btn');
+    const mediaWidth = $('media-width');
+    const mediaHeight = $('media-height');
+    const mediaLock = $('media-lock');
+    const marginTop = $('margin-top');
+    const marginRight = $('margin-right');
+    const marginBottom = $('margin-bottom');
+    const marginLeft = $('margin-left');
+    const themeBackdrop = $('theme-backdrop');
+    const themePanel = $('theme-panel');
+    const themePalette = $('theme-palette');
+    const themeReplaceBar = $('theme-replace-bar');
+    const themeReplaceColor = $('theme-replace-color');
+    const themeReplaceText = $('theme-replace-text');
+    const themeOriginalSwatch = $('theme-original-swatch');
+    const themeDoReplace = $('theme-do-replace');
 
     const SWATCH_COLORS = [
       '#ffffff', '#000000', '#ef4444', '#f97316',
@@ -431,6 +640,7 @@
         btnReset.disabled = false;
         toggleEdit.disabled = false;
         toggleScripts.disabled = false;
+        btnTheme.disabled = false;
         setDirty(false);
         loadIntoIframe(state.originalHTML);
       };
@@ -445,7 +655,7 @@
         toggleEdit.checked = false;
         editHint.classList.remove('visible');
       }
-      hideColorPanel();
+      hideColorPanel(); hideMediaPanel();
       state.iframeReady = false;
       updateViewerSandbox();
       viewer.srcdoc = html;
@@ -644,12 +854,17 @@
       doc.body.contentEditable = 'inherit';
       editHint.classList.remove('visible');
       unbindEditModeEvents();
-      hideColorPanel();
+      hideColorPanel(); hideMediaPanel();
       hoverOverlay.classList.remove('visible');
       hideColorButtonNow();
     }
 
     let boundHandlers = null;
+
+    function hideMediaPanel() {
+      mediaPanel.hidden = true;
+      state.mediaEl = null;
+    }
 
     function bindEditModeEvents() {
       const doc = viewer.contentDocument;
@@ -696,7 +911,7 @@
         if (!state.isEditMode) return;
         const el = e.target;
         if (el === doc.body || el === doc.documentElement) {
-          hideColorPanel();
+          hideColorPanel(); hideMediaPanel();
           return;
         }
         // 点击位置是否落在文字上 → 交给浏览器原生处理(进入文字编辑)
@@ -705,12 +920,19 @@
           return;
         }
         if (!isValidElement(el)) {
-          hideColorPanel();
+          hideColorPanel(); hideMediaPanel();
           return;
         }
         e.preventDefault();
         e.stopPropagation();
-        showColorPanel(el);
+        // Route to appropriate panel based on element type
+        if (isMediaElement(el)) {
+          hideColorPanel();
+          showMediaPanel(el);
+        } else {
+          hideMediaPanel();
+          showColorPanel(el);
+        }
       };
 
       const handleKeyDown = (e) => {
@@ -855,6 +1077,12 @@
       if (skipTags.includes(tag)) return false;
       const rect = el.getBoundingClientRect();
       return rect.width > 0 && rect.height > 0;
+    }
+
+    function isMediaElement(el) {
+      if (!el || el.nodeType !== Node.ELEMENT_NODE) return false;
+      const tag = el.tagName.toLowerCase();
+      return tag === 'img' || tag === 'video' || tag === 'svg' || tag === 'iframe';
     }
 
     // 精确判断点击坐标是否落在文字节点上
@@ -1106,9 +1334,392 @@
 
     panelClose.addEventListener('click', hideColorPanel);
 
+    /* ============== Media Panel ============== */
+    function showMediaPanel(el) {
+      state.mediaEl = el;
+      state.selectedElement = el;
+      hoverOverlay.classList.remove('visible');
+      updateOverlayPosition(selectedOverlay, el);
+      selectedOverlay.classList.add('visible');
+
+      mediaElTag.textContent = describeElement(el);
+      mediaElTag.title = describeElement(el);
+
+      // Read current size
+      const tag = el.tagName.toLowerCase();
+      const win = viewer.contentWindow;
+      if (tag === 'img' || tag === 'video') {
+        mediaWidth.value = parseInt(el.style.width) || el.naturalWidth || el.videoWidth || parseInt(win.getComputedStyle(el).width) || '';
+        mediaHeight.value = parseInt(el.style.height) || el.naturalHeight || el.videoHeight || parseInt(win.getComputedStyle(el).height) || '';
+        const nw = el.naturalWidth || el.videoWidth || 1;
+        const nh = el.naturalHeight || el.videoHeight || 1;
+        state.mediaAspectRatio = nw / nh;
+      } else {
+        mediaWidth.value = parseInt(win.getComputedStyle(el).width) || '';
+        mediaHeight.value = parseInt(win.getComputedStyle(el).height) || '';
+        state.mediaAspectRatio = (parseInt(mediaWidth.value) || 1) / (parseInt(mediaHeight.value) || 1);
+      }
+
+      // Read current margin
+      const cs = win.getComputedStyle(el);
+      marginTop.value = parseInt(cs.marginTop) || 0;
+      marginRight.value = parseInt(cs.marginRight) || 0;
+      marginBottom.value = parseInt(cs.marginBottom) || 0;
+      marginLeft.value = parseInt(cs.marginLeft) || 0;
+
+      // Set accept for file input
+      const isVideo = tag === 'video';
+      mediaFileInput.accept = isVideo ? 'video/*' : 'image/*,video/*';
+
+      // Position panel near element
+      positionPanelNearElement(mediaPanel, el, 320, 340);
+      mediaPanel.hidden = false;
+    }
+
+    mediaPanelClose.addEventListener('click', hideMediaPanel);
+
+    // File replace
+    mediaReplaceBtn.addEventListener('click', () => mediaFileInput.click());
+    mediaFileInput.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file || !state.mediaEl) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        state.mediaEl.setAttribute('src', ev.target.result);
+        if (state.mediaEl.tagName.toLowerCase() === 'video') {
+          state.mediaEl.load();
+        }
+        setDirty(true);
+      };
+      reader.readAsDataURL(file);
+      mediaFileInput.value = '';
+    });
+
+    // URL replace
+    mediaUrlBtn.addEventListener('click', () => {
+      if (!state.mediaEl) return;
+      const url = prompt('输入新的 URL:', state.mediaEl.getAttribute('src') || '');
+      if (url !== null && url.trim()) {
+        state.mediaEl.setAttribute('src', url.trim());
+        if (state.mediaEl.tagName.toLowerCase() === 'video') {
+          state.mediaEl.load();
+        }
+        setDirty(true);
+      }
+    });
+
+    // Size controls with aspect ratio lock
+    mediaWidth.addEventListener('input', () => {
+      if (mediaLock.checked && state.mediaAspectRatio > 0) {
+        const w = parseInt(mediaWidth.value) || 0;
+        mediaHeight.value = w > 0 ? Math.round(w / state.mediaAspectRatio) : '';
+      }
+    });
+    mediaHeight.addEventListener('input', () => {
+      if (mediaLock.checked && state.mediaAspectRatio > 0) {
+        const h = parseInt(mediaHeight.value) || 0;
+        mediaWidth.value = h > 0 ? Math.round(h * state.mediaAspectRatio) : '';
+      }
+    });
+    $('media-size-apply').addEventListener('click', () => {
+      if (!state.mediaEl) return;
+      const w = parseInt(mediaWidth.value);
+      const h = parseInt(mediaHeight.value);
+      if (w > 0) state.mediaEl.style.width = w + 'px';
+      if (h > 0) state.mediaEl.style.height = h + 'px';
+      setDirty(true);
+    });
+    $('media-size-reset').addEventListener('click', () => {
+      if (!state.mediaEl) return;
+      state.mediaEl.style.width = '';
+      state.mediaEl.style.height = '';
+      // Refresh from computed
+      const win = viewer.contentWindow;
+      const cs = win.getComputedStyle(state.mediaEl);
+      mediaWidth.value = parseInt(cs.width) || '';
+      mediaHeight.value = parseInt(cs.height) || '';
+      setDirty(true);
+    });
+
+    // Margin controls
+    $('margin-apply').addEventListener('click', () => {
+      if (!state.mediaEl) return;
+      state.mediaEl.style.marginTop = marginTop.value + 'px';
+      state.mediaEl.style.marginRight = marginRight.value + 'px';
+      state.mediaEl.style.marginBottom = marginBottom.value + 'px';
+      state.mediaEl.style.marginLeft = marginLeft.value + 'px';
+      setDirty(true);
+    });
+    $('margin-reset').addEventListener('click', () => {
+      if (!state.mediaEl) return;
+      state.mediaEl.style.marginTop = '';
+      state.mediaEl.style.marginRight = '';
+      state.mediaEl.style.marginBottom = '';
+      state.mediaEl.style.marginLeft = '';
+      marginTop.value = 0; marginRight.value = 0;
+      marginBottom.value = 0; marginLeft.value = 0;
+      setDirty(true);
+    });
+
+    /* ============== Theme Panel ============== */
+    btnTheme.addEventListener('click', () => {
+      if (!state.iframeReady) return;
+      openThemePanel();
+    });
+    themeBackdrop.addEventListener('click', closeThemePanel);
+    $('theme-panel-close').addEventListener('click', closeThemePanel);
+
+    function openThemePanel() {
+      themeBackdrop.classList.add('visible');
+      themePanel.classList.add('visible');
+      scanThemeColors();
+      // Deselect any preset
+      document.querySelectorAll('.theme-presets button').forEach(b => b.classList.remove('active'));
+    }
+
+    function closeThemePanel() {
+      themeBackdrop.classList.remove('visible');
+      themePanel.classList.remove('visible');
+      themeReplaceBar.classList.remove('visible');
+      state.themeSelectedColor = null;
+      document.querySelectorAll('.theme-swatch').forEach(s => s.classList.remove('selected'));
+    }
+
+    function scanThemeColors() {
+      const doc = viewer.contentDocument;
+      if (!doc) return;
+      const win = viewer.contentWindow;
+      state.themeColorMap = {};
+
+      const colorProps = ['backgroundColor', 'color', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor', 'outlineColor'];
+      const allEls = doc.querySelectorAll('*');
+      allEls.forEach(el => {
+        colorProps.forEach(prop => {
+          try {
+            const val = win.getComputedStyle(el)[prop];
+            const hex = rgbToHex(val);
+            if (!hex) return;
+            if (!state.themeColorMap[hex]) state.themeColorMap[hex] = [];
+            state.themeColorMap[hex].push({ el, prop });
+          } catch(e) {}
+        });
+      });
+
+      renderThemePalette();
+    }
+
+    function renderThemePalette() {
+      themePalette.innerHTML = '';
+      const colors = Object.entries(state.themeColorMap)
+        .sort((a, b) => b[1].length - a[1].length);  // most used first
+      colors.forEach(([hex, entries]) => {
+        const swatch = document.createElement('div');
+        swatch.className = 'theme-swatch';
+        swatch.style.backgroundColor = hex;
+        swatch.dataset.color = hex;
+
+        if (entries.length > 1) {
+          const count = document.createElement('span');
+          count.className = 'count';
+          count.textContent = entries.length;
+          swatch.appendChild(count);
+        }
+
+        const hexLabel = document.createElement('span');
+        hexLabel.className = 'hex';
+        hexLabel.textContent = hex;
+        swatch.appendChild(hexLabel);
+
+        swatch.addEventListener('click', () => {
+          document.querySelectorAll('.theme-swatch').forEach(s => s.classList.remove('selected'));
+          swatch.classList.add('selected');
+          state.themeSelectedColor = hex;
+          themeOriginalSwatch.style.backgroundColor = hex;
+          themeReplaceColor.value = hex;
+          themeReplaceText.value = hex;
+          themeReplaceBar.classList.add('visible');
+        });
+
+        themePalette.appendChild(swatch);
+      });
+    }
+
+    // Replace single color
+    themeDoReplace.addEventListener('click', () => {
+      if (!state.themeSelectedColor || !state.themeColorMap[state.themeSelectedColor]) return;
+      const newHex = normalizeHex(themeReplaceText.value);
+      if (!newHex) return;
+      const entries = state.themeColorMap[state.themeSelectedColor];
+      entries.forEach(({ el, prop }) => {
+        // Save original for restore
+        if (!state.themeOriginalStyles.has(el)) state.themeOriginalStyles.set(el, {});
+        const orig = state.themeOriginalStyles.get(el);
+        if (!orig[prop]) orig[prop] = el.style[prop];  // save current inline
+        // Apply
+        if (newHex === state.themeSelectedColor) {
+          el.style[prop] = '';  // clear inline to restore computed
+        } else {
+          el.style[prop] = newHex;
+        }
+      });
+      // Rebuild map
+      scanThemeColors();
+      setDirty(true);
+    });
+
+    themeReplaceColor.addEventListener('input', e => {
+      themeReplaceText.value = e.target.value;
+    });
+    themeReplaceText.addEventListener('input', e => {
+      const n = normalizeHex(e.target.value);
+      if (n) themeReplaceColor.value = n;
+    });
+
+    // Preset themes
+    document.querySelectorAll('.theme-presets button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const preset = btn.dataset.preset;
+        if (preset === 'restore') {
+          restoreAllThemeChanges();
+          return;
+        }
+        document.querySelectorAll('.theme-presets button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        applyThemePreset(preset);
+      });
+    });
+
+    function applyThemePreset(preset) {
+      const doc = viewer.contentDocument;
+      if (!doc) return;
+      // First restore originals
+      restoreAllThemeChanges(true);
+
+      const win = viewer.contentWindow;
+      const colorProps = ['backgroundColor', 'color', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor', 'outlineColor'];
+
+      doc.querySelectorAll('*').forEach(el => {
+        colorProps.forEach(prop => {
+          try {
+            const val = win.getComputedStyle(el)[prop];
+            const hex = rgbToHex(val);
+            if (!hex) return;
+            const shifted = shiftColor(hex, preset);
+            if (shifted !== hex) {
+              if (!state.themeOriginalStyles.has(el)) state.themeOriginalStyles.set(el, {});
+              state.themeOriginalStyles.get(el)[prop] = el.style[prop];
+              el.style[prop] = shifted;
+            }
+          } catch(e) {}
+        });
+      });
+
+      scanThemeColors();
+      setDirty(true);
+    }
+
+    function restoreAllThemeChanges(silent) {
+      state.themeOriginalStyles.forEach((props, el) => {
+        Object.entries(props).forEach(([prop, origVal]) => {
+          el.style[prop] = origVal || '';
+        });
+      });
+      state.themeOriginalStyles.clear();
+      scanThemeColors();
+      if (!silent) setDirty(true);
+    }
+
+    function shiftColor(hex, preset) {
+      // Parse hex to RGB
+      const r = parseInt(hex.slice(1,3), 16);
+      const g = parseInt(hex.slice(3,5), 16);
+      const b = parseInt(hex.slice(5,7), 16);
+
+      // Convert to HSL
+      let [h, s, l] = rgbToHsl(r, g, b);
+
+      switch(preset) {
+        case 'warm':
+          // Shift hue toward warm (red/orange), increase saturation slightly
+          h = (h - 30 + 360) % 360;  // shift toward red/orange
+          s = Math.min(100, s + 10);
+          break;
+        case 'cool':
+          // Shift hue toward cool (blue/teal), increase saturation slightly
+          h = (h + 40) % 360;  // shift toward blue/teal
+          s = Math.min(100, s + 10);
+          break;
+        case 'dark':
+          // Invert lightness
+          l = l < 50 ? Math.min(100, l + 45) : Math.max(5, l - 45);
+          break;
+      }
+
+      const [nr, ng, nb] = hslToRgb(h, s, l);
+      return '#' + [nr, ng, nb].map(c => c.toString(16).padStart(2, '0')).join('');
+    }
+
+    function rgbToHsl(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h, s, l = (max + min) / 2;
+      if (max === min) { h = s = 0; }
+      else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch(max) {
+          case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+          case g: h = ((b - r) / d + 2) / 6; break;
+          case b: h = ((r - g) / d + 4) / 6; break;
+        }
+      }
+      return [h * 360, s * 100, l * 100];
+    }
+
+    function hslToRgb(h, s, l) {
+      h /= 360; s /= 100; l /= 100;
+      let r, g, b;
+      if (s === 0) { r = g = b = l; }
+      else {
+        const hue2rgb = (p, q, t) => {
+          if (t < 0) t += 1;
+          if (t > 1) t -= 1;
+          if (t < 1/6) return p + (q - p) * 6 * t;
+          if (t < 1/2) return q;
+          if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+          return p;
+        };
+        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        const p = 2 * l - q;
+        r = hue2rgb(p, q, h + 1/3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1/3);
+      }
+      return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+    }
+
+    /* ============== Panel Positioning ============== */
+    function positionPanelNearElement(panel, el, panelWidth, panelHeight) {
+      const rect = el.getBoundingClientRect();
+      const iframeRect = viewer.getBoundingClientRect();
+      let top = rect.bottom + iframeRect.top + 8;
+      let left = rect.left + iframeRect.left;
+      if (top + panelHeight > window.innerHeight - 8) {
+        top = rect.top + iframeRect.top - panelHeight - 8;
+      }
+      if (left + panelWidth > window.innerWidth - 8) {
+        left = window.innerWidth - panelWidth - 8;
+      }
+      panel.style.top = Math.max(8, top) + 'px';
+      panel.style.left = Math.max(8, left) + 'px';
+    }
+
+    /* ============== Global Key Handler ============== */
     document.addEventListener('keydown', e => {
-      if (e.key === 'Escape' && !colorPanel.hidden) {
-        hideColorPanel();
+      if (e.key === 'Escape') {
+        if (!colorPanel.hidden) hideColorPanel();
+        else if (!mediaPanel.hidden) hideMediaPanel();
+        else if (themePanel.classList.contains('visible')) closeThemePanel();
       }
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault();
